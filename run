@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker run -p 222:22 -p 80:80 -v /home/nik/docker/wordpress/data:/data --tmpfs /var/run --name wp wordpress

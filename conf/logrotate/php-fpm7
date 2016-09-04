@@ -1,0 +1,11 @@
+/var/log/php7/*.log {
+        weekly
+        rotate 54
+        compress
+        delaycompress
+        missingok
+        sharedscripts
+        postrotate
+           supervisorctl restart php-fpm7 > /dev/null
+        endscript
+}

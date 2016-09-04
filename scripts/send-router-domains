@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -f /var/run/secrets/kubernetes.io/serviceaccount/token ]; then
+    domains=$(cat /data/etc/hosts | awk '{printf $2 ","}' | sed 's/.$//')
+    kube_token=$(</var/run/secrets/kubernetes.io/serviceaccount/token)
+    namespace=$(</var/run/secrets/kubernetes.io/serviceaccount/namespace)
+
+    patch="[ { \"op\": \"replace\", \"path\": \"/metadata/annotations/router.deis.io~1domains\", \"value\": \"$domains\" } ]"
+    appname=$(curl -sSk -H "Authorization: Bearer $kube_token" https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_PORT_443_TCP_PORT/api/v1/namespaces/default/pods/$HOSTNAME | grep app | awk '{printf $2 ","}' | sed 's/.$//'  | sed 's/.$//' | sed 's/^.//' | sed 's/.$//')
+    curl -sSk -H "Authorization: Bearer $kube_token" --request PATCH --data "$patch" -H "Content-Type:application/json-patch+json" https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_PORT_443_TCP_PORT/api/v1/namespaces/$namespace/services/$appname
+fi
